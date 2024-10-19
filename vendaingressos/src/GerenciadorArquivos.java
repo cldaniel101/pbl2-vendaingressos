@@ -2,11 +2,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
@@ -17,7 +14,14 @@ public class GerenciadorArquivos {
         String jsonFile = gsonFile.toJson(evento);
         String eventoID = evento.getID();
 
-        String caminhoArquivo = "vendaingressos" + File.separator + "Dados" + File.separator + "Eventos" + File.separator + eventoID + ".json";
+        String caminhoDiretorio = "vendaingressos" + File.separator + "Dados" + File.separator + "Eventos";
+        String caminhoArquivo = caminhoDiretorio + File.separator + eventoID + ".json";
+
+        // Verifica se o diretório existe, caso contrário, cria-o
+        File diretorio = new File(caminhoDiretorio);
+        if (!diretorio.exists()) {
+            diretorio.mkdirs(); // Cria os diretórios necessários
+        }
 
         try (FileWriter writer = new FileWriter(caminhoArquivo)) {
             writer.write(jsonFile);
@@ -29,9 +33,15 @@ public class GerenciadorArquivos {
 
     public Evento LerArquivoEvento(String eventoid) {
         Gson gson = new Gson();
-        String jsonFile = "vendaingressos" + File.separator + "Dados" + File.separator + "Eventos" + File.separator + eventoid + ".json";
+        String caminhoArquivo = "vendaingressos" + File.separator + "Dados" + File.separator + "Eventos" + File.separator + eventoid + ".json";
 
-        try (FileReader reader = new FileReader(jsonFile)) {
+        File arquivo = new File(caminhoArquivo);
+        if (!arquivo.exists()) {
+            System.out.println("Arquivo não encontrado: " + caminhoArquivo);
+            return null; // Ou uma outra ação de tratamento, como lançar uma exceção personalizada
+        }
+
+        try (FileReader reader = new FileReader(caminhoArquivo)) {
             Evento evento = gson.fromJson(reader, Evento.class);
             System.out.println("Dados recuperados com sucesso!");
             return evento;
@@ -46,7 +56,14 @@ public class GerenciadorArquivos {
         String jsonFile = gsonFile.toJson(usuario);
         String UserCPF = usuario.getCpf();
 
-        String caminhoArquivo = "vendaingressos" + File.separator + "Dados" + File.separator + "Usuarios" + File.separator + UserCPF + ".json";
+        String caminhoDiretorio = "vendaingressos" + File.separator + "Dados" + File.separator + "Usuarios";
+        String caminhoArquivo = caminhoDiretorio + File.separator + UserCPF + ".json";
+
+        // Verifica se o diretório existe, caso contrário, cria-o
+        File diretorio = new File(caminhoDiretorio);
+        if (!diretorio.exists()) {
+            diretorio.mkdirs(); // Cria os diretórios necessários
+        }
 
         try (FileWriter writer = new FileWriter(caminhoArquivo)) {
             writer.write(jsonFile);
@@ -58,9 +75,15 @@ public class GerenciadorArquivos {
 
     public Usuario LerArquivoUsuario(String cpf) {
         Gson gson = new Gson();
-        String jsonFile = "vendaingressos" + File.separator + "Dados" + File.separator + "Usuarios" + File.separator + cpf + ".json";
+        String caminhoArquivo = "vendaingressos" + File.separator + "Dados" + File.separator + "Usuarios" + File.separator + cpf + ".json";
 
-        try (FileReader reader = new FileReader(jsonFile)) {
+        File arquivo = new File(caminhoArquivo);
+        if (!arquivo.exists()) {
+            System.out.println("Arquivo não encontrado: " + caminhoArquivo);
+            return null;
+        }
+
+        try (FileReader reader = new FileReader(caminhoArquivo)) {
             Usuario usuario = gson.fromJson(reader, Usuario.class);
             System.out.println("Dados recuperados com sucesso!");
             return usuario;
@@ -73,27 +96,21 @@ public class GerenciadorArquivos {
     public List<String> listarEventosDisponiveis() {
         List<String> arquivosJson = new ArrayList<>();
         File diretorio = new File("vendaingressos" + File.separator + "Dados" + File.separator + "Eventos");
-        Date dataAtual = new Date();
 
         if (diretorio.exists() && diretorio.isDirectory()) {
-            File[] arquivos = diretorio.listFiles();
+            File[] arquivos = diretorio.listFiles((dir, name) -> name.endsWith(".json"));
 
             if (arquivos != null) {
                 for (File arquivo : arquivos) {
-                    if (arquivo.isFile() && arquivo.getName().endsWith(".json")) {
-                        String nomeArquivo = arquivo.getName();
-                        String dataString = nomeArquivo.substring(0, 6); // Pega os primeiros 6 caracteres (yymmdd)
-                        try {
-                            Date dataArquivo = new SimpleDateFormat("yyMMdd").parse(dataString);
-                            if (dataArquivo.after(dataAtual)) {
-                                arquivosJson.add(nomeArquivo);
-                            }
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
+                    if (arquivo.isFile()) {
+                        arquivosJson.add(arquivo.getName());
                     }
                 }
+            } else {
+                System.out.println("Nenhum evento encontrado.");
             }
+        } else {
+            System.out.println("Diretório de eventos não encontrado.");
         }
 
         return arquivosJson;
