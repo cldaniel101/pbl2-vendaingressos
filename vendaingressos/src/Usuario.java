@@ -4,14 +4,14 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * A classe {@code Usuario} representa um usuário do sistema de venda de ingressos.
- * Cada usuário possui um login, senha, nome completo, CPF, e-mail, status de administrador,
- * e uma lista de ingressos associados.
+ * Representa um usuário do sistema de venda de ingressos.
+ * Um usuário possui login, senha, nome completo, CPF, e-mail, 
+ * status de administrador, além de uma lista de ingressos e comprovantes.
  */
 public class Usuario {
-    private String username;
-    private String password;
-    private String fullName;
+    private String login;
+    private String senha;
+    private String nomeCompleto;
     private String cpf;
     private String email;
     private boolean isAdmin;
@@ -19,19 +19,19 @@ public class Usuario {
     private List<Comprovante> comprovantes;
 
     /**
-     * Construtor da classe {@code Usuario}.
+     * Construtor da classe Usuario, inicializa os atributos do usuário.
      *
-     * @param username o nome de usuário
-     * @param password a senha do usuário
-     * @param fullName o nome completo do usuário
+     * @param login o login do usuário
+     * @param senha a senha do usuário
+     * @param nomeCompleto o nome completo do usuário
      * @param cpf o CPF do usuário
      * @param email o e-mail do usuário
-     * @param isAdmin se o usuário é administrador
+     * @param isAdmin indica se o usuário possui permissões de administrador
      */
-    public Usuario(String username, String password, String fullName, String cpf, String email, boolean isAdmin) {
-        this.username = username;
-        this.password = password;
-        this.fullName = fullName;
+    public Usuario(String login, String senha, String nomeCompleto, String cpf, String email, boolean isAdmin) {
+        this.login = login;
+        this.senha = senha;
+        this.nomeCompleto = nomeCompleto;
         this.cpf = cpf;
         this.email = email;
         this.isAdmin = isAdmin;
@@ -40,15 +40,15 @@ public class Usuario {
     }
 
     public String getLogin() {
-        return username;
+        return login;
     }
 
-    public String getNome() {
-        return fullName;
+    public String getNomeCompleto() {
+        return nomeCompleto;
     }
 
     public String getSenha() {
-        return password;
+        return senha;
     }
 
     public String getCpf() {
@@ -63,16 +63,16 @@ public class Usuario {
         return isAdmin;
     }
 
-    public void setLogin(String username) {
-        this.username = username;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
-    public void setSenha(String password) {
-        this.password = password;
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
-    public void setNome(String fullName) {
-        this.fullName = fullName;
+    public void setNomeCompleto(String nomeCompleto) {
+        this.nomeCompleto = nomeCompleto;
     }
 
     public void setCpf(String cpf) {
@@ -87,19 +87,44 @@ public class Usuario {
         this.isAdmin = isAdmin;
     }
 
-    public boolean login(String username, String password) {
-        return this.username.equals(username) && this.password.equals(password);
+    /**
+     * Verifica se o login e senha fornecidos correspondem ao usuário.
+     *
+     * @param login o login inserido
+     * @param senha a senha inserida
+     * @return true se as credenciais forem válidas, caso contrário false
+     */
+    public boolean login(String login, String senha) {
+        return this.login.equals(login) && this.senha.equals(senha);
     }
 
+    /**
+     * Adiciona um ingresso à lista de ingressos do usuário.
+     *
+     * @param ingresso o ingresso a ser adicionado
+     */
     public void adicionarIngresso(Ingresso ingresso) {
         this.ingressos.add(ingresso);
     }
 
-    public List<Ingresso> getIngressos() {
+    /**
+     * Retorna a lista de ingressos do usuário.
+     *
+     * @return lista de ingressos
+     */
+    public List<Ingresso> getQuantidadeIngressos() {
         return this.ingressos;
     }
 
-    public boolean removeIngresso(Ingresso ingresso, Evento evento, Date dataAtual) {
+    /**
+     * Remove um ingresso da lista de ingressos, se o evento já ocorreu.
+     *
+     * @param ingresso o ingresso a ser removido
+     * @param evento o evento relacionado ao ingresso
+     * @param dataAtual a data atual para comparação
+     * @return true se o ingresso foi removido, caso contrário false
+     */
+    public boolean removerIngresso(Ingresso ingresso, Evento evento, Date dataAtual) {
         if (evento.getData().before(dataAtual)) {
             ingressos.remove(ingresso);
             return true;
@@ -107,24 +132,42 @@ public class Usuario {
         return false;
     }
 
-    public void atualizarDados(String username, String password, String fullName, String email) {
-        setLogin(username);
-        setSenha(password);
-        setNome(fullName);
+    /**
+     * Atualiza os dados principais do usuário.
+     *
+     * @param login o novo login
+     * @param senha a nova senha
+     * @param nomeCompleto o novo nome completo
+     * @param email o novo e-mail
+     */
+    public void atualizarDados(String login, String senha, String nomeCompleto, String email) {
+        setLogin(login);
+        setSenha(senha);
+        setNomeCompleto(nomeCompleto);
         setEmail(email);
     }
 
+    /**
+     * Adiciona um comprovante à lista de comprovantes do usuário.
+     *
+     * @param comprovante o comprovante a ser adicionado
+     */
     public void adicionarComprovante(Comprovante comprovante) {
         this.comprovantes.add(comprovante);
     }
 
+    /**
+     * Retorna a lista de comprovantes do usuário.
+     *
+     * @return lista de comprovantes
+     */
     public List<Comprovante> getComprovantes() {
         return this.comprovantes;
     }
 
     @Override
     public int hashCode() {
-        return cpf != null ? cpf.hashCode() : 0;
+        return Objects.hash(cpf);
     }
 
     @Override

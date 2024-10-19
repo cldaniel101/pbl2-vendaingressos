@@ -3,40 +3,46 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * A classe {@code Ingresso} representa um ingresso de evento. Cada ingresso contém
- * informações sobre o evento, preço, assento e status (ativo ou cancelado).
+ * A classe {@code Ingresso} define um ingresso para um evento, contendo
+ * informações como o ID do evento, preço, e status de validade.
  */
 public class Ingresso {
     private String eventoID;
-    private double preco;
+    private double valor;
     private String ingressoID;
     private boolean status;
 
     /**
-     * Constrói um ingresso com preço inicial de 0.0.
+     * Cria um ingresso associado a um evento com preço inicial de 0.0.
      *
-     * @param evento o evento associado ao ingresso
+     * @param evento evento ao qual o ingresso está vinculado
      */
     public Ingresso(Evento evento) {
-        this.eventoID = evento.getID();
-        this.preco = 0.0;
+        this.eventoID = evento.getId();
+        this.valor = 0.0;
         this.status = true;
         this.ingressoID = gerarId(evento);
     }
 
     /**
-     * Constrói um ingresso com um preço específico.
+     * Cria um ingresso com preço específico associado a um evento.
      *
-     * @param evento o evento associado ao ingresso
-     * @param preco o preço do ingresso
+     * @param evento evento ao qual o ingresso está vinculado
+     * @param valor valor do ingresso
      */
-    public Ingresso(Evento evento, double preco) {
-        this.eventoID = evento.getID();
-        this.preco = preco;
+    public Ingresso(Evento evento, double valor) {
+        this.eventoID = evento.getId();
+        this.valor = valor;
         this.status = true;
         this.ingressoID = gerarId(evento);
     }
 
+    /**
+     * Gera um ID único para o ingresso, baseado na data do evento e um UUID.
+     *
+     * @param evento evento ao qual o ingresso está vinculado
+     * @return string contendo o ID gerado para o ingresso
+     */
     private String gerarId(Evento evento) {
         Date data = evento.getData();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
@@ -48,16 +54,26 @@ public class Ingresso {
     /**
      * Retorna o preço do ingresso.
      *
-     * @return o preço
+     * @return valor do ingresso
      */
-    public double getPreco() {
-        return preco;
+    public double getValor() {
+        return valor;
     }
 
+    /**
+     * Retorna o ID do evento associado ao ingresso.
+     *
+     * @return ID do evento
+     */
     public String getEventoID() {
         return this.eventoID;
     }
 
+    /**
+     * Retorna o ID único do ingresso.
+     *
+     * @return ID do ingresso
+     */
     public String getId() {
         return this.ingressoID;
     }
@@ -65,12 +81,17 @@ public class Ingresso {
     /**
      * Verifica se o ingresso está ativo.
      *
-     * @return {@code true} se o ingresso está ativo, {@code false} se está cancelado
+     * @return {@code true} se o ingresso estiver ativo, {@code false} caso contrário
      */
     public boolean isAtivo() {
         return status;
     }
 
+    /**
+     * Define o status do ingresso como ativo ou cancelado.
+     *
+     * @param status novo status do ingresso
+     */
     public void setStatus(boolean status) {
         this.status = status;
     }

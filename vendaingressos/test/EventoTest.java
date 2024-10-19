@@ -10,8 +10,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+/**
+ * Classe de teste para a funcionalidade de eventos.
+ */
 public class EventoTest {
 
+    /**
+     * Testa a criação de um evento e valida seus atributos.
+     */
     @Test
     public void testCriarEvento() {
         Evento evento = criarEvento("Show de Rock", "Banda XYZ", 2024, Calendar.SEPTEMBER, 10, 100);
@@ -19,10 +25,13 @@ public class EventoTest {
         assertNotNull(evento);
         assertEquals("Show de Rock", evento.getNome());
         assertEquals("Banda XYZ", evento.getDescricao());
-        assertEquals(100, evento.getIngressos());
+        assertEquals(100, evento.getQuantidadeIngressos());
         assertEquals(getDate(2024, Calendar.SEPTEMBER, 10), evento.getData());
     }
 
+    /**
+     * Testa se o evento está ativo em uma data futura.
+     */
     @Test
     public void testEventoAtivo() {
         Evento evento = criarEvento("Show de Rock", "Banda XYZ", 2033, Calendar.SEPTEMBER, 10, 100);
@@ -30,6 +39,9 @@ public class EventoTest {
         assertTrue(evento.isAtivo(getDate(2033, Calendar.SEPTEMBER, 10)));
     }
 
+    /**
+     * Testa se o evento está inativo em uma data passada.
+     */
     @Test
     public void testEventoInativo() {
         Evento evento = criarEvento("Show de Rock", "Banda XYZ", 2023, Calendar.JANUARY, 10, 100);
@@ -37,20 +49,23 @@ public class EventoTest {
         assertFalse(evento.isAtivo(getDate(2024, Calendar.AUGUST, 10)));
     }
 
+    /**
+     * Testa o armazenamento de dados de um evento.
+     */
     @Test
-    public void ArmazenamentoDadosEvento() {
+    public void armazenarDadosEvento() {
         Controller controller = new Controller();
         GerenciadorArquivos dados = new GerenciadorArquivos();
 
         Usuario admin = controller.cadastrarUsuario("admin", "senha123", "Admin User", "00000000000", "admin@example.com", true);
         Evento evento = controller.cadastrarEvento(admin, "Show de Rock", "Banda XYZ", getDate(2024, Calendar.SEPTEMBER, 10), 100, dados);
 
-        controller.ArmazenarEvento(evento, dados);
+        controller.salvarEvento(evento, dados);
     }
 
-    private Evento criarEvento(String nome, String descricao, int ano, int mes, int dia, int ingressos) {
+    private Evento criarEvento(String nome, String informacoes, int ano, int mes, int dia, int ingressos) {
         Date data = getDate(ano, mes, dia);
-        return new Evento(nome, descricao, data, ingressos);
+        return new Evento(nome, informacoes, data, ingressos);
     }
 
     private Date getDate(int ano, int mes, int dia) {
@@ -66,7 +81,7 @@ public class EventoTest {
                 if (subFile.isFile() && subFile.getName().endsWith(".json")) {
                     subFile.delete();
                 } else if (subFile.isDirectory()) {
-                    deleteFilesInDirectory(subFile); // Recursivamente deletar arquivos em subdiretórios
+                    deleteFilesInDirectory(subFile);
                 }
             }
         }

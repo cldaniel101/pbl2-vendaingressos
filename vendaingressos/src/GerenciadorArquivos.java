@@ -7,38 +7,54 @@ import java.io.File;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+/**
+ * Classe responsável pelo gerenciamento de arquivos do sistema.
+ * Contém métodos para salvar e recuperar dados de eventos e usuários, bem como listar eventos disponíveis.
+ */
 public class GerenciadorArquivos {
 
-    public void ArmazenarEvento(Evento evento) {
+    /**
+     * Salva os dados de um evento em um arquivo JSON.
+     * Se o diretório onde o arquivo deve ser salvo não existir, ele será criado.
+     *
+     * @param evento O evento a ser salvo.
+     */
+    public void salvarEvento(Evento evento) {
         Gson gsonFile = new Gson();
         String jsonFile = gsonFile.toJson(evento);
-        String eventoID = evento.getID();
+        String eventoID = evento.getId();
 
         String caminhoDiretorio = "vendaingressos" + File.separator + "Dados" + File.separator + "Eventos";
         String caminhoArquivo = caminhoDiretorio + File.separator + eventoID + ".json";
 
-        // Verifica se o diretório existe, caso contrário, cria-o
         File diretorio = new File(caminhoDiretorio);
         if (!diretorio.exists()) {
-            diretorio.mkdirs(); // Cria os diretórios necessários
+            diretorio.mkdirs();
         }
 
         try (FileWriter writer = new FileWriter(caminhoArquivo)) {
             writer.write(jsonFile);
-            System.out.println("Dados Armazenados com sucesso!");
+            System.out.println("Dados armazenados com sucesso!");
         } catch (IOException erro) {
             erro.printStackTrace();
         }
     }
 
-    public Evento LerArquivoEvento(String eventoid) {
+    /**
+     * Lê os dados de um evento a partir de um arquivo JSON.
+     * Retorna o evento correspondente ou null se o arquivo não for encontrado ou houver erro na leitura.
+     *
+     * @param eventoid O ID do evento a ser lido.
+     * @return O evento recuperado ou null caso ocorra algum erro.
+     */
+    public Evento lerEvento(String eventoid) {
         Gson gson = new Gson();
         String caminhoArquivo = "vendaingressos" + File.separator + "Dados" + File.separator + "Eventos" + File.separator + eventoid + ".json";
 
         File arquivo = new File(caminhoArquivo);
         if (!arquivo.exists()) {
             System.out.println("Arquivo não encontrado: " + caminhoArquivo);
-            return null; // Ou uma outra ação de tratamento, como lançar uma exceção personalizada
+            return null;
         }
 
         try (FileReader reader = new FileReader(caminhoArquivo)) {
@@ -51,7 +67,13 @@ public class GerenciadorArquivos {
         }
     }
 
-    public void ArmazenamentoUser(Usuario usuario) {
+    /**
+     * Salva os dados de um usuário em um arquivo JSON.
+     * Se o diretório onde o arquivo deve ser salvo não existir, ele será criado.
+     *
+     * @param usuario O usuário a ser salvo.
+     */
+    public void salvarUsuario(Usuario usuario) {
         Gson gsonFile = new Gson();
         String jsonFile = gsonFile.toJson(usuario);
         String UserCPF = usuario.getCpf();
@@ -59,21 +81,27 @@ public class GerenciadorArquivos {
         String caminhoDiretorio = "vendaingressos" + File.separator + "Dados" + File.separator + "Usuarios";
         String caminhoArquivo = caminhoDiretorio + File.separator + UserCPF + ".json";
 
-        // Verifica se o diretório existe, caso contrário, cria-o
         File diretorio = new File(caminhoDiretorio);
         if (!diretorio.exists()) {
-            diretorio.mkdirs(); // Cria os diretórios necessários
+            diretorio.mkdirs();
         }
 
         try (FileWriter writer = new FileWriter(caminhoArquivo)) {
             writer.write(jsonFile);
-            System.out.println("Dados Armazenados com sucesso!");
+            System.out.println("Dados armazenados com sucesso!");
         } catch (IOException erro) {
             erro.printStackTrace();
         }
     }
 
-    public Usuario LerArquivoUsuario(String cpf) {
+    /**
+     * Lê os dados de um usuário a partir de um arquivo JSON.
+     * Retorna o usuário correspondente ou null se o arquivo não for encontrado ou houver erro na leitura.
+     *
+     * @param cpf O CPF do usuário a ser lido.
+     * @return O usuário recuperado ou null caso ocorra algum erro.
+     */
+    public Usuario lerUsuario(String cpf) {
         Gson gson = new Gson();
         String caminhoArquivo = "vendaingressos" + File.separator + "Dados" + File.separator + "Usuarios" + File.separator + cpf + ".json";
 
@@ -93,6 +121,11 @@ public class GerenciadorArquivos {
         }
     }
 
+    /**
+     * Lista todos os arquivos de eventos disponíveis no diretório de eventos.
+     *
+     * @return Uma lista de nomes dos arquivos JSON dos eventos.
+     */
     public List<String> listarEventosDisponiveis() {
         List<String> arquivosJson = new ArrayList<>();
         File diretorio = new File("vendaingressos" + File.separator + "Dados" + File.separator + "Eventos");

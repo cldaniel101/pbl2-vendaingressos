@@ -6,46 +6,68 @@ import java.util.Map;
 
 /**
  * A classe {@code Evento} representa um evento disponível para a venda de ingressos.
- * Cada evento possui um nome, descrição, data e uma lista de assentos disponíveis.
+ * Cada evento possui um nome, informação, data e uma lista de assentos disponíveis.
  */
 public class Evento {
-    private String ID;
-    private String Nome;
-    private String Descricao;
-    private Date Data;
-    private int QuantidadeIngressos;
+    private String id;
+    private String nome;
+    private Date data;
+    private int quantidadeIngressos;
+    private String informacoes;
     private Map<String, String> avaliacoes;
 
     /**
      * Construtor da classe {@code Evento}.
      *
-     * @param Nome o nome do evento
-     * @param Descricao a descrição do evento
-     * @param Data a data em que o evento ocorrerá
+     * @param nome o nome do evento
+     * @param informacoes a informação do evento
+     * @param data a data em que o evento ocorrerá
+     * @param ingressos a quantidade de ingressos disponíveis para o evento
      */
-    public Evento(String Nome, String Descricao, Date Data, int ingressos) {
-        this.ID = gerarId(Data, Nome);
-        this.Nome = Nome;
-        this.Descricao = Descricao;
-        this.Data = ajustarData(Data);
-        this.QuantidadeIngressos = ingressos;
+    public Evento(String nome, String informacoes, Date data, int ingressos) {
+        this.id = gerarId(data, nome);
+        this.nome = nome;
+        this.informacoes = informacoes;
+        this.data = ajustarData(data);
+        this.quantidadeIngressos = ingressos;
         this.avaliacoes = new HashMap<>();
     }
 
+    /**
+     * Verifica se o evento está ativo com base na data atual.
+     *
+     * @param data a data atual para comparação
+     * @return true se o evento ainda não tiver ocorrido, false caso contrário
+     */
     public boolean isAtivo(Date data) {
-        return !this.Data.before(data);
+        return !this.data.before(data);
     }
 
+    /**
+     * Adiciona uma avaliação ao evento.
+     *
+     * @param usuario o nome do usuário que está avaliando
+     * @param avaliacao a avaliação do evento
+     */
     public void adicionarAvaliacao(String usuario, String avaliacao) {
         avaliacoes.put(usuario, avaliacao);
     }
 
+    /**
+     * Exibe todas as avaliações do evento.
+     */
     public void exibirAvaliacoes() {
         for (Map.Entry<String, String> usuario : avaliacoes.entrySet()) {
             System.out.println("Usuário: " + usuario.getKey() + " - Avaliação: " + usuario.getValue());
         }
     }
 
+    /**
+     * Ajusta a data do evento para zerar as horas, minutos, segundos e milissegundos.
+     *
+     * @param data a data original do evento
+     * @return a data ajustada
+     */
     private Date ajustarData(Date data) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(data);
@@ -56,45 +78,54 @@ public class Evento {
         return calendar.getTime();
     }
 
-    private String gerarId(Date data, String Nome) {
+    /**
+     * Gera um ID único para o evento com base na data e nome do evento.
+     *
+     * @param data a data do evento
+     * @param nome o nome do evento
+     * @return o ID gerado
+     */
+    private String gerarId(Date data, String nome) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
         String dataEventoString = sdf.format(data);
-        return dataEventoString + "-" + Nome;
+        return dataEventoString + "-" + nome;
     }
+
+    // Getters e setters
 
     public Map<String, String> getAvaliacoes() {
         return avaliacoes;
     }
 
-    public String getID() {
-        return ID;
+    public String getId() {
+        return id;
     }
 
     public String getNome() {
-        return Nome;
+        return nome;
     }
 
     public String getDescricao() {
-        return Descricao;
+        return informacoes;
     }
 
     public Date getData() {
-        return Data;
+        return data;
     }
 
-    public int getIngressos() {
-        return this.QuantidadeIngressos;
+    public int getQuantidadeIngressos() {
+        return quantidadeIngressos;
     }
 
-    public void setIngressos(int ingressos) {
-        this.QuantidadeIngressos = ingressos;
+    public void setQuantidadeIngressos(int ingressos) {
+        this.quantidadeIngressos = ingressos;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((ID == null) ? 0 : ID.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
         return result;
     }
 
@@ -107,10 +138,10 @@ public class Evento {
         if (getClass() != obj.getClass())
             return false;
         Evento other = (Evento) obj;
-        if (ID == null) {
-            if (other.ID != null)
+        if (id == null) {
+            if (other.id != null)
                 return false;
-        } else if (!ID.equals(other.ID))
+        } else if (!id.equals(other.id))
             return false;
         return true;
     }

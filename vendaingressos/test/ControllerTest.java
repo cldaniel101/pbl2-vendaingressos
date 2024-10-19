@@ -3,15 +3,17 @@ import java.io.File;
 
 import org.junit.After;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 
-
+/**
+ * Testes da classe Controller, que incluem funcionalidades como cadastro de eventos,
+ * compra de ingressos, e gerenciamento de usuários.
+ */
 public class ControllerTest {
 
+    /**
+     * Testa o cadastro de um evento realizado por um administrador.
+     */
     @Test
     public void testCadastrarEventoPorAdmin() {
         Controller controller = new Controller();
@@ -19,10 +21,7 @@ public class ControllerTest {
         GerenciadorArquivos dados = new GerenciadorArquivos();
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(2024, Calendar.SEPTEMBER, 10);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
+        calendar.set(2024, Calendar.SEPTEMBER, 10, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         Date data = calendar.getTime();
 
@@ -34,6 +33,10 @@ public class ControllerTest {
         assertEquals(data, evento.getData());
     }
 
+    /**
+     * Testa a tentativa de cadastro de um evento por um usuário comum.
+     * O sistema deve lançar uma exceção de segurança.
+     */
     @Test
     public void testCadastrarEventoPorUsuarioComum() {
         Controller controller = new Controller();
@@ -51,6 +54,9 @@ public class ControllerTest {
         assertEquals("Somente administradores podem cadastrar eventos.", exception.getMessage());
     }
 
+    /**
+     * Testa a compra de um ingresso por um usuário comum.
+     */
     @Test
     public void testComprarIngresso() {
         Controller controller = new Controller();
@@ -63,17 +69,19 @@ public class ControllerTest {
 
         Usuario admin = controller.cadastrarUsuario("admin", "senha123", "Admin User", "00000000000", "admin@example.com", true);
         Evento evento = controller.cadastrarEvento(admin, "Show de Rock", "Banda XYZ", data, 100, dados);
-        String eventoid = evento.getID();
+        String eventoId = evento.getId();
 
         String pagamento = "Credito";
-
-        Ingresso ingresso = controller.comprarIngresso(usuario, eventoid, dados, pagamento, data);
+        Ingresso ingresso = controller.comprarIngresso(usuario, eventoId, dados, pagamento, data);
 
         assertNotNull(ingresso);
-        assertEquals(eventoid, ingresso.getEventoID());
-        assertTrue(usuario.getIngressos().contains(ingresso));
+        assertEquals(eventoId, ingresso.getEventoID());
+        assertTrue(usuario.getQuantidadeIngressos().contains(ingresso));
     }
 
+    /**
+     * Testa o cancelamento de uma compra de ingresso por um usuário.
+     */
     @Test
     public void testCancelarCompra() {
         Controller controller = new Controller();
@@ -85,17 +93,20 @@ public class ControllerTest {
         Date data = calendar.getTime();
 
         Usuario admin = controller.cadastrarUsuario("admin", "senha123", "Admin User", "00000000000", "admin@example.com", true);
-        Evento evento =controller.cadastrarEvento(admin, "Show de Rock", "Banda XYZ", data, 100, dados);
-        String eventoId = evento.getID();
+        Evento evento = controller.cadastrarEvento(admin, "Show de Rock", "Banda XYZ", data, 100, dados);
+        String eventoId = evento.getId();
         String pagamento = "Credito";
 
         Ingresso ingresso = controller.comprarIngresso(usuario, eventoId, dados, pagamento, data);
 
         boolean cancelado = controller.cancelarCompra(usuario, ingresso, data, dados);
         assertTrue(cancelado);
-        assertFalse(usuario.getIngressos().contains(ingresso));
+        assertFalse(usuario.getQuantidadeIngressos().contains(ingresso));
     }
 
+    /**
+     * Testa a listagem de eventos disponíveis.
+     */
     @Test
     public void testListarEventosDisponiveis() {
         Controller controller = new Controller();
@@ -114,10 +125,12 @@ public class ControllerTest {
         controller.cadastrarEvento(admin, "Peça de Teatro", "Grupo ABC", data2, 100, dados);
 
         List<String> eventos = dados.listarEventosDisponiveis();
-
         assertEquals(2, eventos.size());
     }
 
+    /**
+     * Testa a listagem de ingressos comprados por um usuário.
+     */
     @Test
     public void testListarIngressosComprados() {
         Controller controller = new Controller();
@@ -132,48 +145,55 @@ public class ControllerTest {
         Evento evento = controller.cadastrarEvento(admin, "Show de Rock", "Banda XYZ", data, 100, dados);
         String pagamento = "Credito";
 
-        controller.comprarIngresso(usuario, evento.getID(), dados, pagamento, data);
-
+        controller.comprarIngresso(usuario, evento.getId(), dados, pagamento, data);
         List<Ingresso> ingressos = controller.listarIngressosComprados(usuario);
 
         assertEquals(1, ingressos.size());
     }
 
+    /**
+     * Testa o armazenamento e leitura dos dados de um usuário.
+     */
     @Test
-    public void ArmazenamentoDadosUsuario(){
+    public void ArmazenamentoDadosUsuario() {
         Controller controller = new Controller();
         GerenciadorArquivos dados = new GerenciadorArquivos();
         Usuario usuario = new Usuario("johndoe", "senha123", "John Doe", "12345678901", "john.doe@example.com", false);
 
-        controller.ArmazenarDadosUsuario(usuario, dados);
+        controller.salvarDadosUsuario(usuario, dados);
+        Usuario login = controller.lerDadosUsuario("12345678901", dados);
 
-        Usuario user = controller.LerDadosUsuario("12345678901", dados);
+        assertNotNull(login);
+        assertEquals("johndoe", login.getLogin());
+        assertEquals("John Doe", login.getNomeCompleto());
+        assertEquals("12345678901", login.getCpf());
+        assertEquals("john.doe@example.com", login.getEmail());
+        assertFalse(login.isAdmin());
 
-        assertNotNull(user);
-        assertEquals("johndoe", user.getLogin());
-        assertEquals("John Doe", user.getNome());
-        assertEquals("12345678901", user.getCpf());
-        assertEquals("john.doe@example.com", user.getEmail());
-        assertFalse(user.isAdmin());
-
-        assertEquals(usuario, user);
+        assertEquals(usuario, login);
     }
 
+    /**
+     * Testa a criação de um novo cadastro de usuário.
+     */
     @Test
-    public void testNovocadastroUsuario(){
+    public void testNovocadastroUsuario() {
         Controller controller = new Controller();
         Usuario usuario = new Usuario("johndoe", "senha123", "John Doe", "12345678901", "john.doe@example.com", false);
 
-        controller.NovoCadastroUsuario(usuario,"randomUser456", "password789", "Random User", "random.User@example.com");
+        controller.novoCadastroUsuario(usuario, "randomUser456", "senha789", "Random User", "random.User@example.com");
 
-        assertEquals("Random User", usuario.getNome());
+        assertEquals("Random User", usuario.getNomeCompleto());
         assertEquals("randomUser456", usuario.getLogin());
-        assertEquals("password789", usuario.getSenha());
+        assertEquals("senha789", usuario.getSenha());
         assertEquals("random.User@example.com", usuario.getEmail());
     }
 
+    /**
+     * Testa a avaliação de um evento por um usuário.
+     */
     @Test
-    public void AvaliarEvento(){
+    public void avaliarEvento() {
         Controller controller = new Controller();
         GerenciadorArquivos dados = new GerenciadorArquivos();
 
@@ -181,25 +201,25 @@ public class ControllerTest {
         Usuario usuario = new Usuario("johndoe", "senha123", "John Doe", "12345678901", "john.doe@example.com", false);
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(2024, Calendar.SEPTEMBER, 10);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
+        calendar.set(2024, Calendar.SEPTEMBER, 10, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         Date data = calendar.getTime();
 
         Evento evento = controller.cadastrarEvento(admin, "Show de Rock", "Banda XYZ", data, 100, dados);
         String avaliacao = "Evento ótimo e divertido";
 
-        controller.AvaliarEvento(evento, usuario, avaliacao);
+        controller.avaliarEvento(evento, usuario, avaliacao);
 
         Map<String, String>avaliações = evento.getAvaliacoes();
 
         assertEquals(1, avaliações.size());
     }
 
+    /**
+     * Testa o armazenamento e leitura dos dados de um evento.
+     */
     @Test
-    public void ArmazenamentoDadosEvento(){
+    public void testArmazenamentoDadosEvento() {
         Controller controller = new Controller();
         GerenciadorArquivos dados = new GerenciadorArquivos();
 
@@ -214,40 +234,44 @@ public class ControllerTest {
         Date data = calendar.getTime();
 
         Evento evento = controller.cadastrarEvento(admin, "Show de Rock", "Banda XYZ", data, 100, dados);
+        controller.salvarEvento(evento, dados);
 
-        controller.ArmazenarEvento(evento, dados);
-        Evento Testeevento = controller.LerDadosEvento(evento.getID(), dados);
+        Evento testeevento = controller.lerDadosEvento(evento.getId(), dados);
 
-        assertNotNull(Testeevento);
-        assertEquals("Show de Rock", Testeevento.getNome());
-        assertEquals(data, Testeevento.getData());
-        assertEquals(100, Testeevento.getIngressos());
-
-        assertEquals(Testeevento, evento);
+        assertNotNull(testeevento);
+        assertEquals("Show de Rock", testeevento.getNome());
+        assertEquals(data, testeevento.getData());
+        assertEquals(100, testeevento.getQuantidadeIngressos());
+        assertEquals(testeevento, evento);
     }
 
+    /**
+     * Testa a listagem de comprovantes de compras feitas por um usuário.
+     */
     @Test
-    public void testListarcomprovantes() {
+    public void testListarComprovantes() {
         Controller controller = new Controller();
         Usuario usuario = new Usuario("johndoe", "senha123", "John Doe", "12345678901", "john.doe@example.com", false);
         GerenciadorArquivos dados = new GerenciadorArquivos();
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(2024, Calendar.SEPTEMBER, 10);
+        calendar.set(2024, Calendar.SEPTEMBER, 10); // Ajustado para 2 argumentos
         Date data = calendar.getTime();
 
         Usuario admin = controller.cadastrarUsuario("admin", "senha123", "Admin User", "00000000000", "admin@example.com", true);
         Evento evento = controller.cadastrarEvento(admin, "Show de Rock", "Banda XYZ", data, 100, dados);
         String pagamento = "Credito";
 
-        controller.comprarIngresso(usuario, evento.getID(), dados, pagamento, data);
-        controller.comprarIngresso(usuario, evento.getID(), dados, pagamento, data);
+        controller.comprarIngresso(usuario, evento.getId(), dados, pagamento, data);
+        controller.comprarIngresso(usuario, evento.getId(), dados, pagamento, data);
 
         List<Comprovante> comprovantes = controller.listarComprovantes(usuario);
-
         assertEquals(2, comprovantes.size());
     }
 
+    /**
+     * Limpa os arquivos gerados após a execução dos testes.
+     */
     @After
     public void cleanUp() {
         File directoryEvento = new File("vendaingressos/Dados/Eventos");
@@ -257,6 +281,11 @@ public class ControllerTest {
         deleteFilesInDirectory(directoryUser);
     }
 
+    /**
+     * Método auxiliar para deletar arquivos em um diretório.
+     *
+     * @param directory O diretório onde os arquivos serão deletados.
+     */
     private void deleteFilesInDirectory(File directory) {
         if (directory.isDirectory()) {
             for (File subFile : Objects.requireNonNull(directory.listFiles())) {
@@ -268,5 +297,4 @@ public class ControllerTest {
             }
         }
     }
-
 }

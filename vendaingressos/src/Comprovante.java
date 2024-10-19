@@ -1,20 +1,20 @@
 import java.util.Date;
 
 public class Comprovante {
-    private String fullName;
+    private String nomeCompleto;
     private String cpf;
     private String email;
     private Ingresso ingresso;
     private String eventoID;
-    private String pagamento; // Alterado para minúsculo
+    private String pagamento; 
     private Date data;
 
-    public Comprovante(String fullName, String cpf, String email, Ingresso ingresso, String pagamento, String eventoID, Date data) {
-        this.fullName = fullName;
+    public Comprovante(String nomeCompleto, String cpf, String email, Ingresso ingresso, String pagamento, String eventoID, Date data) {
+        this.nomeCompleto = nomeCompleto;
         this.cpf = cpf;
         this.email = email;
         this.ingresso = ingresso;
-        this.pagamento = pagamento; // Alterado para minúsculo
+        this.pagamento = pagamento;
         this.eventoID = eventoID;
         this.data = data;
     }
@@ -23,8 +23,8 @@ public class Comprovante {
         return cpf;
     }
 
-    public String getFullName() {
-        return fullName;
+    public String getnomeCompleto() {
+        return nomeCompleto;
     }
 
     public String getEmail() {
@@ -43,7 +43,7 @@ public class Comprovante {
         return data;
     }
 
-    public String getPagamento() { // Renomeado para getPagamento
+    public String getPagamento() {
         return pagamento;
     }
 }
